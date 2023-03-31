@@ -145,6 +145,20 @@ def generate_mesh_with_segments(H, COL = None, offset_x = 0, offset_y = 0, verti
             if not object.hide_viewport:
                 bpy.context.view_layer.objects.active = object
                 break
+            
+    #Deselect all
+    bpy.ops.object.select_all(action='DESELECT')
+
+#Mesh objects
+    MSH_OBJS = [m for m in bpy.context.scene.objects if m.type == 'MESH']
+
+    for OBJS in MSH_OBJS:
+        #Select all mesh objects
+        OBJS.select_set(state=True)
+
+    #Makes one active
+        bpy.context.view_layer.objects.active = OBJS
+    
     #----------------------------------------------
     bpy.ops.object.join()
     bpy.ops.object.convert(target='MESH') # Here I've added an option which will
@@ -238,8 +252,8 @@ def clear_meshes():
 
 
 clear_meshes()
-H = torch.load("/Users/maxineperroni-scharf/Dropbox/Mac/Desktop/view_dependent_code_release/march20H.pt")
-COL = torch.load("/Users/maxineperroni-scharf/Dropbox/Mac/Desktop/view_dependent_code_release/march20COL.pt")
+H = torch.load("/Users/maxineperroni-scharf/Dropbox/Mac/Desktop/view/march30H.pt")
+COL = torch.load("/Users/maxineperroni-scharf/Dropbox/Mac/Desktop/view/march30COL.pt")
 #generate_mesh(H, COL)
 
 generate_mesh_with_segments(H, COL)
