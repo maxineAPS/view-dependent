@@ -231,7 +231,7 @@ def forward(H, COL, ray_packs, num_cams, num_repeats = 2, count = 0, heaviside_f
       result_cols.append(heightfield.get_black_img_flat(len(ray_packs[i])))
     #result_cols = [get_black_img_flat(len(ray_packs[0])), get_black_img_flat(len(ray_packs[1])), get_black_img_flat(len(ray_packs[2])), get_black_img_flat(len(ray_packs[3]))] 
     repeated_H = H.repeat(num_repeats, num_repeats)
-    repeated_COL = COL.repeat(num_repeats, num_repeats, 1)
+    repeated_COL = COL.repeat(1, 1, 1)
 
 
     for y in range(num_cams):
