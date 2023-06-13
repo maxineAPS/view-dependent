@@ -252,8 +252,8 @@ def clear_meshes():
 
 
 clear_meshes()
-H = torch.load("/Users/maxineperroni-scharf/Dropbox/Mac/Desktop/view/march30H.pt")
-COL = torch.load("/Users/maxineperroni-scharf/Dropbox/Mac/Desktop/view/march30COL.pt")
+H = torch.load("/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_heights.pt")
+COL = torch.load("/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_colors.pt")
 #generate_mesh(H, COL)
 
 generate_mesh_with_segments(H, COL)
