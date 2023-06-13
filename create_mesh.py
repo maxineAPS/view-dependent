@@ -325,13 +325,10 @@ def process_mesh(heights_path, colors_path, image_paths, camera_angles):
         cam_angle = camera_angles[i]
         proj_image_from_cam_loc(image_path, -cam_angle[0]*10, -cam_angle[1]*10, -cam_angle[2]*10)
 
-
-
 heights_path = "/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_heights.pt"
 colors_path = "/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_colors.pt"
 image_paths = ["/Users/maxineperroni-scharf/Desktop/view-dependent/test_images/forest.png", "/Users/maxineperroni-scharf/Desktop/view-dependent/test_images/clouds.png"]
 camera_angles = [[1, 0, -2], [-1, 0, -2]]
-
 
 process_mesh(heights_path, colors_path, image_paths, camera_angles)
 

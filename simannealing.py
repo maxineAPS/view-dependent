@@ -4,6 +4,8 @@ import math
 import numpy as np
 
 def sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heaviside_k, desired_cols, start_temp = 3, num_steps = 50):
+  print("--------------------------------------------------------- \nSimulated annealing...\n---------------------------------------------------------")
+      
   old_loss = 10
   current_temp = start_temp
     
@@ -43,8 +45,6 @@ def sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heavis
       old_loss = new_loss
 
     current_temp = current_temp * 0.99
-      
-    print("STEP: " + str(i) + "\t LOSS: " + str(old_loss))
           
   H = H.detach().numpy()  
   COL = COL.detach().numpy()

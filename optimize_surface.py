@@ -38,6 +38,6 @@ if __name__ == '__main__':
     p2 = "test_images/cat.png"
     p3 = "test_images/clouds.png"
     image_paths = [p1, p3]
-    H1, COL1, result_cols, desired_cols = grad_descent.grad_descent(num_epochs, init_H, cam_directions, image_paths, sim_annealing = False, use_barrier_loss = True, use_neighbor_loss = False, optim_type="Adam", heaviside_fn = "tan", num_rays = 16, num_repeats=2)
+    H1, COL1, result_cols, desired_cols = grad_descent.grad_descent(num_epochs, init_H, cam_directions, image_paths, sim_annealing = True, use_barrier_loss = True, use_neighbor_loss = True, optim_type="Adam", heaviside_fn = "tan", num_rays = 16, num_repeats=2)
 
 
