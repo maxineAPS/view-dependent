@@ -317,16 +317,16 @@ def proj_image_from_cam_loc(image_path, cam_location_x, cam_location_y, cam_loca
 def process_mesh(heights_path, colors_path, image_paths, camera_angles):
 
     clear_meshes()
-    H = torch.load("/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_heights.pt")
-    COL = torch.load("/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_colors.pt")
+    H = torch.load(heights_path)
+    COL = torch.load(colors_path)
     generate_mesh_with_segments(H, COL)
     for i in range(len(image_paths)):
         image_path = image_paths[i]
         cam_angle = camera_angles[i]
         proj_image_from_cam_loc(image_path, -cam_angle[0]*10, -cam_angle[1]*10, -cam_angle[2]*10)
 
-heights_path = "/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_heights.pt"
-colors_path = "/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_12_2023_18-07-38_colors.pt"
+heights_path = "/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_13_2023_18-48-48_heights.pt"
+colors_path = "/Users/maxineperroni-scharf/Desktop/view-dependent/models/06_13_2023_18-48-48_colors.pt"
 image_paths = ["/Users/maxineperroni-scharf/Desktop/view-dependent/test_images/forest.png", "/Users/maxineperroni-scharf/Desktop/view-dependent/test_images/clouds.png"]
 camera_angles = [[1, 0, -2], [-1, 0, -2]]
 
