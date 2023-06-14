@@ -1,6 +1,11 @@
+#Functions to provide smooth heaviside function approximations compatible with torch.
+#Author: All code in this script is from the Norse library: https://github.com/norse/norse/blob/master/norse/torch/functional/heaviside.py
+#Date: June 2023
+
+
 import torch
 
-#ALL CODE IS FROM NORSE: https://github.com/norse/norse/blob/master/norse/torch/functional/heaviside.py
+
 @torch.jit.script
 def heaviside(data):
     r"""

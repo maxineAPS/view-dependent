@@ -1,5 +1,18 @@
+#Additional loss terms for regularization during heightfield optimization.
+#Author: Maxine Perroni-Scharf
+#Date: June 2023
+
+
 import torch
 
+
+'''
+Enforce a maximum/minimum height on the heightifield using barrier loss.
+:param H: heightfield tensor
+:param min_val: minimum height
+:param max_val: maximum height
+:return: loss term
+'''
 def barrier_fn(H, min_val, max_val):
 
   max = torch.full(H.shape, max_val, dtype=torch.float)
@@ -11,6 +24,12 @@ def barrier_fn(H, min_val, max_val):
   loss = (-torch.sum(logmax) - torch.sum(logmin))/H.shape[0]
   return loss
 
+
+'''
+Reduce the difference in heights between neighboring members of the heightfield.
+:param H: heightfield tensor
+:return: loss term
+'''
 def neighbor_fn(H):
 
   diff = 0

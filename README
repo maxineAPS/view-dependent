@@ -1,0 +1,1 @@
+run view_dependent.ipynb main with desired cam_directions and image paths to produce a heightfield. Run blendermodel.py to convert desired heightfield into a printable 3D obj mesh and accompanying mtl file. Optionally reproject images onto the surface of the mesh using blender.

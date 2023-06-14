@@ -1,6 +1,9 @@
+#Simple math utilities
+#Author: Maxine Perroni-Scharf
+#Date: June 2023
+
 import math
 import numpy as np
-import matplotlib.pyplot as plt
 
 def dot_product(x, y):
     return sum([x[i] * y[i] for i in range(len(x))])

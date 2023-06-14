@@ -1,16 +1,34 @@
+#Gradient descent loop to iteratively optimize heights and colors of heightfield to match desired view-dependent appearance.
+#Author: Maxine Perroni-Scharf
+#Date: June 2023
+
+
 import numpy as np
 import torch
-import time
 import copy
 import torch
 import rendering
 import heightfield
 import image
 import opt
-import sys
 import simannealing
 from datetime import datetime
 
+
+'''
+Gradient descent loop to iteratively optimize heights and colors of heightfield to match desired view-dependent appearance.
+:param num_epochs: number of iterations
+:param cam_directions: list of viewing directions, where each direction is a list of 3 values specifying global x, y and z direction components
+:param image_paths: list of image paths specifying desired appearance
+:param use_barrier_loss: boolean specifying whether to enforce a min/max height on the heightfield
+:param use_neighbor_loss: boolean specifying whether to regularize the surface from neighbor to neighbor heights
+:param sim_annealing: boolean specifying whether to perform steps of simulated annealing before beginning gradient descent
+:param optim_type: optimizer to use ()"Adam" for Adam optimizer, "SGD" for stochastic gradient descent)
+:param heaviside_fn: parameter to specify specific heavisde smooth approximation to use for rendering (choices: erfc, tan, log, circ, circdist, see happrox.py)
+:param num_repeats: number of times to grid repeat surface heights
+:param num_rays: resolution of images (there will be num_raysxnum_rays camera rays shot at the surface from each camera). This value doubles as heightfield subdivides.
+:return: final heightfield colors, final heightfield heights, rendered heightfield appearance from each camera, desired heightfield appearance from each camera
+'''
 def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = True, use_neighbor_loss = False, sim_annealing = True, optim_type = "Adam", heaviside_fn = None, heaviside_k = 0.1, num_repeats = 1, num_rays = 32):
   
     COL = heightfield.get_white_COL(H.shape[0]*num_repeats)
@@ -46,7 +64,7 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
     ray_packs = []
 
     for t in range(num_cams):
-        ray_packs.append(rendering.get_ray_packs(ray_origins[t], cam_directions[t], num_strips))
+        ray_packs.append(rendering.process_rays(ray_origins[t], cam_directions[t], num_strips))
 
     desired_cols = []
     for i in range(num_cams):
@@ -108,7 +126,7 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
 
             ray_packs = []
             for t in range(num_cams):
-                ray_packs.append(rendering.get_ray_packs(ray_origins[t], cam_directions[t], num_strips))
+                ray_packs.append(rendering.process_rays(ray_origins[t], cam_directions[t], num_strips))
         
             H.requires_grad = True
             COL.requires_grad = True
@@ -147,7 +165,7 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
             if optim_type == "SGD":
                 optimizer = torch.optim.SGD([H, COL],lr=lr, momentum=0.9)
     
-        result_cols = rendering.forward(H, COL, ray_packs, num_cams, num_repeats=num_repeats, heaviside_fn = heaviside_fn, heaviside_k = heaviside_k)
+        result_cols = rendering.render_camera(H, COL, ray_packs, num_cams, num_repeats=num_repeats, heaviside_fn = heaviside_fn, heaviside_k = heaviside_k)
         mse_loss = 0
         for q in range(num_cams):
             mse_loss += torch.nn.functional.mse_loss(result_cols[q].double(), desired_cols[q].double())

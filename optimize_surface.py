@@ -1,15 +1,13 @@
+#Main function for optimizing heightfields
+#Author: Maxine Perroni-Scharf
+#Date: June 2023
+
+
 import numpy as np
 import torch
-import time
-import copy
 import torch
-import rendering
 import heightfield
-import image
-import opt
 import sys
-import simannealing
-from datetime import datetime
 import grad_descent
 
 
