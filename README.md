@@ -53,4 +53,4 @@ Click on the generated object, and export the object as an obj with mtl file.
 
 ### Print the surface
 
-Import the obj and mtl files into gradcab, and print the surface!
+Import the obj and mtl files into gradcab. Happy printing!
