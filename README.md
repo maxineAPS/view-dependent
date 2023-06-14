@@ -1,4 +1,4 @@
-# Gender Artifacts in Visual Datasets
+# Constructing Printable Surfaces with View-Dependent Appearance
 ### [Project Page](https://maxineaps.github.io/view-dependent-project-site/) | [Paper](https://arxiv.org/pdf/2306.07449.pdf)
 
 This repo provides the code for the paper "Constructing Printable Surfaces with View-Dependent Appearance." This code allows users to optimize and create 3D printable colored heightfields that have view-dependent appearance, given a series of viewing angles and desired appearance images.
