@@ -19,7 +19,7 @@ From inside the src directory:
 ```
 conda create -n viewdependent python=3.9
 conda activate viewdependent
-conda install --file requirements.txt
+pip install -r src/requirements.txt  
 ```
 
 ## Create surfaces
