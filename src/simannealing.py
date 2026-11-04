@@ -24,7 +24,7 @@ Simulated annealing loop to iteratively optimize heights and colors of heightfie
 :num_steps: number of iterations
 :return: resulting heightfield heights and colors tensors
 '''
-def sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heaviside_k, desired_cols, start_temp = 3, num_steps = 50):
+def sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heaviside_k, desired_cols, start_temp = 3, num_steps = 50, min_height = 0.1, max_height = 3.9):
   print("--------------------------------------------------------- \nSimulated annealing...\n---------------------------------------------------------")
       
   old_loss = 10
@@ -34,7 +34,7 @@ def sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heavis
 
     #randomize H
     H_NEW = H + 0.05*(torch.rand(H.shape, dtype=torch.float) - 0.5)
-    H_NEW = torch.clamp(H_NEW, 0.1, 3.9)
+    H_NEW = torch.clamp(H_NEW, min_height, max_height)
     COL_NEW = COL + 0.05*(torch.rand(COL.shape, dtype=torch.float) - 0.5)
     COL_NEW = torch.clamp(COL_NEW, 0, 1)
      

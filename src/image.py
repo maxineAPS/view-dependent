@@ -19,11 +19,13 @@ Convert image into usable tensor.
 def get_tensor_from_image(path, dim = (32, 32), final_size = (32, 32)):
 
     image_mat = plt.imread(path)
+    if np.issubdtype(image_mat.dtype, np.integer): #8-bit images (e.g. JPEG) are read as integers in [0, 255]
+        image_mat = image_mat.astype(np.float32)/255.0
     
     #deal with grayscale image read
-    if image_mat.shape[-1] != 4:
+    if image_mat.ndim == 2:
         image_mat = np.stack((image_mat,)*3, axis=-1)
-    else:
+    elif image_mat.shape[-1] == 4:
         image_mat = image_mat[:, :, :-1]
     
     min_dim = min(dim)

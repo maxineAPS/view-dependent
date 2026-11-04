@@ -47,3 +47,9 @@ def neighbor_fn(H):
       diff += abs(val - right)
 
   return diff/len(H)*len(H)
+
+
+#neighbor loss for every bar, wrapping around the edges of the repeating unit, averaged over the bars
+def neighbor_fn_wrap(H):
+  diff = (H - torch.roll(H, -1, dims=1)).abs().sum() + (H - torch.roll(H, -1, dims=0)).abs().sum()
+  return diff/(H.shape[0]*H.shape[1])

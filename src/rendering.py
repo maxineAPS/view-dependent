@@ -216,7 +216,7 @@ def find_ids_and_lengths(sorted_intersections, num_strips):
   for i in range(0, len(sorted_intersections)-1):
     midpoint = (sorted_intersections[i] + sorted_intersections[i+1])/2
     scaled_midpoint = midpoint*num_strips
-    ids.append(np.floor(scaled_midpoint))
+    ids.append(np.floor(scaled_midpoint) % num_strips) #wrap -1 and num_strips around (intersections up to 1e-4 outside are accepted)
     lengths.append(np.linalg.norm(sorted_intersections[i+1]-sorted_intersections[i]))
   return ids, lengths
 

@@ -3,6 +3,7 @@
 #Date: June 2023
 
 
+import os, json
 import numpy as np
 import torch
 import copy
@@ -27,13 +28,17 @@ Gradient descent loop to iteratively optimize heights and colors of heightfield 
 :param heaviside_fn: parameter to specify specific heavisde smooth approximation to use for rendering (choices: erfc, tan, log, circ, circdist, see happrox.py)
 :param num_repeats: number of times to grid repeat surface heights
 :param num_rays: resolution of images (there will be num_raysxnum_rays camera rays shot at the surface from each camera). This value doubles as heightfield subdivides.
+:param output_dir, max_height, neighbor_weight: output folder, maximum height (barrier loss), weight of opt.neighbor_fn_wrap
+:param paper_settings: behave as the original release (v1.0): rays start at z = 1, opt.neighbor_fn, maximum height 1.5
 :return: final heightfield colors, final heightfield heights, rendered heightfield appearance from each camera, desired heightfield appearance from each camera
 '''
-def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = True, use_neighbor_loss = False, sim_annealing = True, optim_type = "Adam", heaviside_fn = None, heaviside_k = 0.1, num_repeats = 1, num_rays = 32):
+def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = True, use_neighbor_loss = False, sim_annealing = True, optim_type = "Adam", heaviside_fn = None, heaviside_k = 0.1, num_repeats = 1, num_rays = 32, output_dir = "models", paper_settings = False, max_height = 1.0, neighbor_weight = 1.0):
   
     COL = heightfield.get_white_COL(H.shape[0]*num_repeats)
     now = datetime.now()
     date_time = now.strftime("%m_%d_%Y_%H-%M-%S")
+    os.makedirs(output_dir, exist_ok=True)
+    prefix = grad_descent.last_output = os.path.join(output_dir, date_time)
     num_cams = len(cam_directions)
     num_strips = H.shape[0]*num_repeats
     ray_width = 1/num_rays
@@ -48,9 +53,12 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
 
     grad_types = schedule.repeat(20)
 
+    max_height = 1.5 if paper_settings else max_height
+    camera_z = 1 if paper_settings else float(torch.as_tensor(H, dtype=torch.float).double().mean()) #height the camera rays start from
+
     for i in range(num_rays):
         for k in range(num_rays):
-            coord = np.array([i*ray_width + ray_width/2, k*ray_width + ray_width/2, 1])
+            coord = np.array([i*ray_width + ray_width/2, k*ray_width + ray_width/2, camera_z])
             coords.append(coord)
 
             for q in range(num_cams):   
@@ -58,8 +66,8 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
                 curr_origin[2] = curr_origin[2].item()
                 ray_origins[q].append(curr_origin)
 
-    H = torch.tensor(H, dtype=torch.float, requires_grad = True)
-    COL = torch.tensor(COL, dtype=torch.float, requires_grad = True)
+    H = torch.as_tensor(H, dtype=torch.float).detach().clone().requires_grad_(True)
+    COL = torch.as_tensor(COL, dtype=torch.float).detach().clone().requires_grad_(True)
 
     ray_packs = []
 
@@ -71,7 +79,8 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
         desired_cols.append(image.get_tensor_from_image(image_paths[i], (64, 64), (num_rays, num_rays)))
   
     if sim_annealing:
-        H, COL = simannealing.sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heaviside_k, desired_cols)
+        sa_bounds = dict(min_height = 0.1 + 1e-4, max_height = max_height - 1e-4) if use_barrier_loss else {} #stay inside the barrier bounds
+        H, COL = simannealing.sim_annealing(H, COL, ray_packs, num_cams, num_repeats, heaviside_fn, heaviside_k, desired_cols, **sa_bounds)
 
     print("--------------------------------------------------------- \n Beginning grad descent...\n---------------------------------------------------------")
 
@@ -83,20 +92,13 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
 
     for j in range(1, num_epochs):
         
-        if j%50 == 0:
-      
-            repeated_H = H.repeat(num_repeats, num_repeats)
-            torch.save(repeated_H, 'models/' + date_time + '_heights.pt')
-            torch.save(COL, 'models/' + date_time + '_colors.pt')
-            print("--------------------------------------------------------- \n Saving surface heights and colors to models directory...\n---------------------------------------------------------")
-        
         change = False
     
         if j%100 == 0:
             H = heightfield.double_resolution(H)
             COL = heightfield.double_resolution(COL)
-            H = torch.tensor(H, dtype=torch.float)
-            COL = torch.tensor(COL, dtype=torch.float)
+            H = torch.as_tensor(H, dtype=torch.float).detach().clone()
+            COL = torch.as_tensor(COL, dtype=torch.float).detach().clone()
             num_strips = num_strips*2
             desired_cols = []
             
@@ -109,14 +111,19 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
             ray_width = ray_width/2
             change = True
     
-        if j%100 == 95 or j%100 == 0:
+        #camera rays start at the current mean surface height, re-centered every 10 steps
+        recenter = not paper_settings and j%10 == 0 and abs(float(H.detach().double().mean()) - camera_z) > 1e-4
+        if recenter:
+            camera_z = float(H.detach().double().mean())
+
+        if j%100 == 95 or j%100 == 0 or recenter:
             coords = []
             change = True
       
             ray_origins = copy.deepcopy(original_ray_origins) 
             for i in range(num_rays):
                 for k in range(num_rays):
-                    coord = np.array([i*ray_width + ray_width/2, k*ray_width + ray_width/2, 1])
+                    coord = np.array([i*ray_width + ray_width/2, k*ray_width + ray_width/2, camera_z])
                     coords.append(coord)
                     
                     for q in range(num_cams):    
@@ -174,16 +181,30 @@ def grad_descent(num_epochs, H, cam_directions, image_paths, use_barrier_loss = 
             print("STEP " + str(j) + "\t LOSS: " + str(mse_loss.item()/2))
 
         if use_barrier_loss:
-            barrier_loss = opt.barrier_fn(H, min_val = 0.1, max_val = 1.5)
+            barrier_loss = opt.barrier_fn(H, min_val = 0.1, max_val = max_height)
             mse_loss = mse_loss + 0.02*barrier_loss
 
         if use_neighbor_loss:
-            neighbor_loss = opt.neighbor_fn(H)
-            mse_loss = mse_loss + 0.5*neighbor_loss
+            neighbor_loss = opt.neighbor_fn(H) if paper_settings else opt.neighbor_fn_wrap(H)
+            mse_loss = mse_loss + (0.5 if paper_settings else neighbor_weight)*neighbor_loss
     
-        optimizer.zero_grad()
+        optimizer.zero_grad(set_to_none=False) #the default changed in PyTorch 2.0
         mse_loss.backward()
         optimizer.step()
+
+        if use_barrier_loss: #a step past a bound would make the barrier loss NaN
+            with torch.no_grad():
+                H[H >= max_height] = max_height - 1e-4
+                H[H <= 0.1] = 0.1 + 1e-4
+
+        if j%50 == 49 or j == num_epochs-1: #every 50 steps and at the end
+            repeated_H = H.detach().repeat(num_repeats, num_repeats)
+            torch.save(repeated_H, prefix + '_heights.pt')
+            torch.save(COL.detach(), prefix + '_colors.pt')
+            np.save(prefix + '_heights.npy', repeated_H.numpy())
+            np.save(prefix + '_colors.npy', COL.detach().numpy())
+            with open(prefix + '_cameras.json', 'w') as f: json.dump({'camera_directions': np.asarray(cam_directions, dtype=float).tolist(), 'image_paths': list(image_paths), 'camera_z': float(camera_z)}, f, indent=1)
+            print("--------------------------------------------------------- \n Saving surface heights and colors to " + prefix + "_heights/_colors (.pt and .npy)...\n---------------------------------------------------------")
 
     repeated_H = H.repeat(num_repeats, num_repeats)
     return repeated_H, COL, result_cols, desired_cols
