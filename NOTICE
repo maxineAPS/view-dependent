@@ -1,0 +1,10 @@
+This repository is released under the MIT License (see LICENSE), with one exception:
+
+  src/happrox.py
+
+is copied from the Norse library (https://github.com/norse/norse,
+norse/torch/functional/heaviside.py) and remains under the GNU Lesser General
+Public License v3.0 or later. Copyright (c) the Norse contributors. The full
+LGPL-3.0 text is in licenses/LGPL-3.0.txt (with the GPL-3.0 it extends in
+licenses/GPL-3.0.txt). It is used unmodified apart from this notice; if you
+modify or redistribute that file, the LGPL terms apply to it.

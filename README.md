@@ -79,3 +79,7 @@ The code release has been updated for improved performance. The original release
 - Added a missing `numpy` import used by the `erfc` smooth Heaviside option.
 - Rare cases where a height could reach the bounds of the barrier loss (making the loss NaN or infinite) are handled: heights are kept within the barrier bounds after each optimizer step and during simulated annealing.
 - The optimizer gives the same results on PyTorch 2.x as on the PyTorch version in `requirements.txt` (PyTorch 2.0 changed the default of `zero_grad`; the code now sets it explicitly).
+
+## License
+
+MIT (see [LICENSE](LICENSE)). `src/happrox.py` is from [Norse](https://github.com/norse/norse) and stays under LGPL-3.0-or-later; see [NOTICE](NOTICE).
