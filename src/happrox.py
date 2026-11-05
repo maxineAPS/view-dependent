@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: LGPL-3.0-or-later
 # Copyright (c) the Norse contributors (https://github.com/norse/norse).
-# This file is from Norse and is licensed under the GNU LGPL v3.0 or later;
+# This file combines code from Norse's threshold.py, superspike.py and heaviside.py
+# (norse/torch/functional/) and is licensed under the GNU LGPL v3.0 or later;
 # see licenses/LGPL-3.0.txt. The rest of this repository is MIT-licensed (see NOTICE).
 #Functions to provide smooth heaviside function approximations compatible with torch.
-#Author: All code in this script is from the Norse library: https://github.com/norse/norse/blob/master/norse/torch/functional/heaviside.py
+#Author: Code in this script is from the Norse library (threshold.py, superspike.py, heaviside.py): https://github.com/norse/norse/tree/main/norse/torch/functional
 #Date: June 2023
 
 
