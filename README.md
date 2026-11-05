@@ -18,12 +18,12 @@ This repo provides the code for the paper "Constructing Printable Surfaces with 
 
 From the repository root:
 ```
-conda create -n viewdependent python=3.9
+conda create -n viewdependent python=3.12
 conda activate viewdependent
 pip install -r src/requirements.txt
 ```
 
-`requirements.txt` lists the package versions of the original release. Where those versions are not available (e.g. on Apple-silicon Macs), the code also runs with current versions; we tested Python 3.12 with PyTorch 2.5, NumPy 2.4 and OpenCV 4.13, which give the same results.
+`requirements.txt` lists minimum versions of current packages; we tested Python 3.12 with PyTorch 2.5, NumPy 2.4 and OpenCV 4.13, which give the same results as the original release. The original release (2023) used `numpy==1.21.2`, `torch==1.9.1`, `torchvision==0.10.1`, `opencv-python==4.5.3.56` and `matplotlib` with Python 3.9; those versions have known security advisories and are no longer recommended.
 
 ## Create surfaces
 ### Run the surface optimizer
